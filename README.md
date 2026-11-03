@@ -21,6 +21,9 @@ docs/           compose-vers-kubernetes.md, logs-et-monitoring.md, environnement
 cheatsheet.md   mémo kubectl 1 page
 ```
 
+## VM de TP avec VirtualBox + Vagrant
+`vagrant up` à la racine du dépôt crée une VM Ubuntu 24.04 vierge (8 vCPU, 16 Go), y installe tous les outils et dépose le dépôt dans `~/skyboard-k8s` (voir l'en-tête du `Vagrantfile`). IP fixe `192.168.56.10` pour le navigateur du poste.
+
 ## Prérequis poste (plan A)
 Ubuntu 22.04+ (ou équivalent), 4 vCPU, 8 Go RAM, 20 Go libres, Docker, droits `docker` pour l'utilisateur.
 `00-poste/install.sh` installe docker, kubectl, k3d, helm, k9s, hey, jq et ajoute `k3d-registry.localhost`
