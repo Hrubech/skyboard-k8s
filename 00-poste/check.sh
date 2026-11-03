@@ -2,7 +2,7 @@
 # Vérifie le poste avant la formation. Sortie : OK / KO par outil. Code retour 1 si un KO.
 set -u
 ko=0
-check() { if "$@" >/dev/null 2>&1; then printf '  OK  %s\n' "$1"; else printf '  KO  %s\n' "$1"; ko=1; fi; }
+check() { if "$@" >/dev/null 2>&1; then printf '  OK  %s\n' "$*"; else printf '  KO  %s\n' "$*"; ko=1; fi; }
 echo "== Outils"
 check docker version
 check docker run --rm hello-world
@@ -10,14 +10,15 @@ check kubectl version --client
 check k3d version
 check helm version
 check jq --version
-check hey -h
+check command -v hey
 check k9s version
 echo "== Ressources"
 cpu=$(nproc); mem=$(free -g | awk '/Mem:/{print $2}'); disk=$(df -BG --output=avail / | tail -1 | tr -dc 0-9)
 printf '  %s vCPU (min 4), %s Go RAM (min 8), %s Go libres (min 20)\n' "$cpu" "$mem" "$disk"
 [ "$cpu" -ge 4 ] && [ "$mem" -ge 7 ] && [ "$disk" -ge 20 ] || { echo "  KO  ressources insuffisantes"; ko=1; }
 echo "== Réseau"
-check curl -fsSI https://registry-1.docker.io/v2/
+code=$(curl -sS -o /dev/null -m 10 -w '%{http_code}' https://registry-1.docker.io/v2/ 2>/dev/null || echo 000)
+case "$code" in 2*|3*|401) printf '  OK  Docker Hub joignable (%s)\n' "$code";; *) printf '  KO  Docker Hub injoignable (%s)\n' "$code"; ko=1;; esac
 check getent hosts k3d-registry.localhost
 check getent hosts skyboard.local
 echo "== Cluster (si créé)"
