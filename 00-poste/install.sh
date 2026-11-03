@@ -15,11 +15,27 @@ sudo apt-get install -y ca-certificates curl gnupg jq git make unzip apache2-uti
 if ! command -v docker >/dev/null; then
   sudo install -m 0755 -d /etc/apt/keyrings
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  echo "deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME")
+  # Ubuntu plus récent que le dépôt Docker (ex. 26.04 avant sa prise en charge) : repli sur la LTS précédente
+  if ! curl -fsSI "https://download.docker.com/linux/ubuntu/dists/${CODENAME}/Release" >/dev/null 2>&1; then
+    echo "Dépôt Docker indisponible pour '${CODENAME}', utilisation des paquets 'noble' (24.04)."; CODENAME=noble
+  fi
+  echo "deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${CODENAME} stable" \
     | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
   sudo apt-get update -y && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 fi
 sudo usermod -aG docker "$USER" || true
+
+# La registry k3d sert en HTTP : Docker doit la connaître comme « insecure », sinon « server gave HTTP response to HTTPS client »
+if ! grep -q "k3d-registry.localhost:5000" /etc/docker/daemon.json 2>/dev/null; then
+  if [ -s /etc/docker/daemon.json ]; then
+    sudo jq '. + {"insecure-registries": ((."insecure-registries" // []) + ["k3d-registry.localhost:5000"] | unique)}' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json.new >/dev/null \
+      && sudo mv /etc/docker/daemon.json.new /etc/docker/daemon.json
+  else
+    echo '{ "insecure-registries": ["k3d-registry.localhost:5000"] }' | sudo tee /etc/docker/daemon.json >/dev/null
+  fi
+  sudo systemctl restart docker
+fi
 
 # kubectl
 curl -fsSLo /tmp/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
