@@ -1,0 +1,19 @@
+# Atelier J3 — étape 1 : ingress-nginx à côté du Traefik de k3s.
+# Traefik garde 80/443 ; nginx écoute sur 8081 (mappé sur le poste par k3d) → http://skyboard.local:8081
+controller:
+  replicaCount: 1
+  ingressClassResource:
+    name: nginx
+    default: false
+  service:
+    type: LoadBalancer
+    ports:
+      http: 8081
+      https: 8444
+  admissionWebhooks:
+    enabled: true
+  resources:
+    requests: { cpu: 50m, memory: 90Mi }
+    limits: { cpu: 500m, memory: 256Mi }
+  metrics:
+    enabled: false

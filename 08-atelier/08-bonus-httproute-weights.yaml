@@ -1,0 +1,21 @@
+# Atelier J3 — bonus : le canary « natif » avec la Gateway API (poids par backend, sans annotation propriétaire).
+# Prérequis : 05-services/07-gateway-api-bonus.sh exécuté (Traefik + CRDs Gateway API), Gateway skyboard-gw créée.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: skyboard-canary
+  namespace: default
+spec:
+  parentRefs: [{ name: skyboard-gw }]
+  hostnames: ["skyboard.local"]
+  rules:
+    - matches: [{ path: { type: PathPrefix, value: /api } }]
+      backendRefs:
+        - name: skyboard-api          # blue (v1)
+          port: 8000
+          weight: 90
+        - name: skyboard-api-canary   # green (v2)
+          port: 8000
+          weight: 10
+    - matches: [{ path: { type: PathPrefix, value: / } }]
+      backendRefs: [{ name: skyboard-web, port: 8080 }]

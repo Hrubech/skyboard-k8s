@@ -1,0 +1,13 @@
+# Atelier J3 — étape 4 : le Service pointe sur UNE couleur. La bascule = changer le selector (instantané, réversible).
+#   bascule vers green : kubectl patch svc skyboard-api -p '{"spec":{"selector":{"skyboard/slot":"green"}}}'
+#   retour arrière     : kubectl patch svc skyboard-api -p '{"spec":{"selector":{"skyboard/slot":"blue"}}}'
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-api
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+spec:
+  selector:
+    app.kubernetes.io/name: skyboard-api
+    skyboard/slot: blue
+  ports: [{ name: http, port: 8000, targetPort: http }]

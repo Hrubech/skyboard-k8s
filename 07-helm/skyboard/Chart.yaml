@@ -1,0 +1,9 @@
+apiVersion: v2
+name: skyboard
+description: SkyBoard — tableau des vols (API + front), chart pédagogique de la formation Kubernetes pour Développeurs
+type: application
+version: 0.1.0
+appVersion: "v1"
+keywords: [skyboard, formation, dgac]
+maintainers:
+  - name: Formateur IF-KUBDEV

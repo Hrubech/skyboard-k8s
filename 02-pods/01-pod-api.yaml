@@ -1,0 +1,26 @@
+# TP2a — étape 1 : un premier Pod SkyBoard API
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skyboard-api
+  labels:
+    app.kubernetes.io/name: skyboard-api
+    app.kubernetes.io/part-of: skyboard
+spec:
+  containers:
+    - name: api
+      image: k3d-registry.localhost:5000/skyboard-api:v1
+      ports:
+        - name: http
+          containerPort: 8000
+      env:
+        - name: AIRPORT
+          value: "LFBO"
+      resources:
+        requests: { cpu: 50m, memory: 64Mi }
+        limits: { cpu: 250m, memory: 128Mi }
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }

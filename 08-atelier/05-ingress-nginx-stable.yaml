@@ -1,0 +1,18 @@
+# Atelier J3 — étape 5 : l'Ingress « stable » sur nginx (http://skyboard.local:8081)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: skyboard-nginx
+  labels: { app.kubernetes.io/part-of: skyboard }
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: skyboard.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: skyboard-api, port: { name: http } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: skyboard-web, port: { name: http } } }

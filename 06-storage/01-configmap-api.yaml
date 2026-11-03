@@ -1,0 +1,11 @@
+# TP6 — étape 1 : la configuration sort du Deployment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: skyboard-api-config
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+data:
+  AIRPORT: "LFBO"
+  REDIS_HOST: "redis"
+  SHUTDOWN_DELAY: "5"
+  FEATURE_BANNER: ""

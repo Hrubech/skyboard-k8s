@@ -1,0 +1,14 @@
+# TP5 — étape 2 : NodePort — ouvre le port 30080 sur chaque nœud (mappé sur le poste par k3d)
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-api-nodeport
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+spec:
+  type: NodePort
+  selector: { app.kubernetes.io/name: skyboard-api }
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      nodePort: 30080            # plage 30000-32767 ; omis = alloué automatiquement

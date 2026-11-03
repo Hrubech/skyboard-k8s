@@ -1,0 +1,66 @@
+# SkyBoard en Docker Compose — le « point de départ » d'un développeur.
+# Sert de pont pédagogique : chaque service ci-dessous a son équivalent Kubernetes
+# dans le dépôt (voir docs/compose-vers-kubernetes.md).
+#
+#   docker compose up --build        # http://localhost:8080  (front) · http://localhost:8080/api/flights
+#   docker compose down -v
+
+services:
+  api:                                   # → Deployment + Service skyboard-api (TP2b), sondes (TP3a), ConfigMap/Secret (TP6)
+    build: ./api
+    image: skyboard-api:v1
+    environment:
+      AIRPORT: LFBO
+      APP_VERSION: v1
+      REDIS_HOST: redis
+      DATABASE_URL: postgresql://skyboard:skyboard@postgres:5432/skyboard
+      SHUTDOWN_DELAY: "5"
+    depends_on:
+      redis: { condition: service_started }
+      postgres: { condition: service_healthy }
+    healthcheck:                         # → livenessProbe / readinessProbe
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:8000/healthz')\""]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    stop_grace_period: 15s               # → terminationGracePeriodSeconds
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }   # → resources.limits
+
+  web:                                   # → Deployment + Service skyboard-web, Ingress route / (TP5)
+    build: ./web
+    image: skyboard-web:v1
+    ports:
+      - "8080:8080"                      # → Service NodePort/LoadBalancer ou Ingress
+    depends_on: [api]
+
+  redis:                                 # → StatefulSet redis + Service headless (TP4)
+    image: redis:7-alpine
+
+  postgres:                              # → StatefulSet/Deployment postgres + PVC + Secret (TP6)
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: skyboard
+      POSTGRES_PASSWORD: skyboard          # → Secret
+      POSTGRES_DB: skyboard
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # → PersistentVolumeClaim
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skyboard"]
+      interval: 5s
+      retries: 10
+
+  notam-import:                          # → Job puis CronJob notam-import (TP4, TP6)
+    image: postgres:16-alpine            # psql est dans l'image ; le script est monté
+    volumes:
+      - ./notam-import/import.sh:/import.sh:ro
+    entrypoint: ["sh", "/import.sh"]
+    environment:
+      DATABASE_URL: postgresql://skyboard:skyboard@postgres:5432/skyboard
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+volumes:
+  pgdata:                                # → PersistentVolume provisionné par la StorageClass

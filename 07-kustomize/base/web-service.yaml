@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-web
+  labels: { app.kubernetes.io/name: skyboard-web }
+spec:
+  selector: { app.kubernetes.io/name: skyboard-web }
+  ports: [{ name: http, port: 8080, targetPort: http }]

@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: skyboard
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: skyboard.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: skyboard-api, port: { name: http } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: skyboard-web, port: { name: http } } }

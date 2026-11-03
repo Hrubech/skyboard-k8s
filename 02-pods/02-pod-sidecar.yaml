@@ -1,0 +1,25 @@
+# TP2a — étape 4 : un Pod multi-containers (pattern sidecar)
+# Le sidecar « warmer » interroge l'API toutes les 10 s via localhost : les containers
+# d'un même Pod partagent le réseau (et peuvent partager des volumes).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: skyboard-api-sidecar
+  labels:
+    app.kubernetes.io/name: skyboard-api
+    app.kubernetes.io/part-of: skyboard
+spec:
+  containers:
+    - name: api
+      image: k3d-registry.localhost:5000/skyboard-api:v1
+      ports: [{ name: http, containerPort: 8000 }]
+      env: [{ name: AIRPORT, value: "LFBO" }]
+      resources:
+        requests: { cpu: 50m, memory: 64Mi }
+        limits: { cpu: 250m, memory: 128Mi }
+    - name: warmer
+      image: curlimages/curl:8.11.1
+      command: ["sh", "-c", "while true; do curl -s localhost:8000/flights | head -c 120; echo; sleep 10; done"]
+      resources:
+        requests: { cpu: 10m, memory: 16Mi }
+        limits: { cpu: 50m, memory: 32Mi }

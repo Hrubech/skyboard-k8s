@@ -1,0 +1,10 @@
+# TP5 — étape 1 : ClusterIP (défaut) — joignable uniquement depuis le cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-api
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+spec:
+  type: ClusterIP
+  selector: { app.kubernetes.io/name: skyboard-api }
+  ports: [{ name: http, port: 8000, targetPort: http }]

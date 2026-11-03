@@ -1,0 +1,20 @@
+# TP5 — étape 6 : Ingress (Traefik, inclus dans k3s). http://skyboard.local → web, /api → API
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: skyboard
+  labels: { app.kubernetes.io/part-of: skyboard }
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: skyboard.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: skyboard-api, port: { name: http } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: skyboard-web, port: { name: http } }

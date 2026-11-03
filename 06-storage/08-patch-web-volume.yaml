@@ -1,0 +1,15 @@
+# TP6 — bonus (2/2) : monter la ConfigMap en volume (répertoire entier, sans subPath → rechargement à chaud ≈ 1 min)
+# kubectl patch deployment skyboard-web --patch-file 08-patch-web-volume.yaml
+# puis kubectl edit configmap skyboard-web-banner, et http://skyboard.local/config/banner.txt change sans restart.
+spec:
+  template:
+    spec:
+      containers:
+        - name: web
+          volumeMounts:
+            - name: banner
+              mountPath: /usr/share/nginx/html/config   # avec subPath, PAS de rechargement à chaud
+              readOnly: true
+      volumes:
+        - name: banner
+          configMap: { name: skyboard-web-banner }

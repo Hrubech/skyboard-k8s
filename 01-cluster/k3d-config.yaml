@@ -1,0 +1,28 @@
+# Cluster de formation : 1 server (control plane) + 2 agents (workers), registry locale,
+# ports 80/443 du loadbalancer k3d mappés sur le poste → Ingress joignable sur http://localhost
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: skyboard
+servers: 1
+agents: 2
+image: rancher/k3s:v1.31.4-k3s1
+ports:
+  - port: 80:80          # Ingress HTTP
+    nodeFilters: [loadbalancer]
+  - port: 443:443        # Ingress HTTPS
+    nodeFilters: [loadbalancer]
+  - port: 30080:30080    # NodePort du TP5
+    nodeFilters: [server:0]
+  - port: 8081:8081      # ingress-nginx de l'atelier J3 (Traefik garde 80/443)
+    nodeFilters: [loadbalancer]
+registries:
+  create:
+    name: registry.localhost   # devient k3d-registry.localhost
+    hostPort: "5000"
+options:
+  # Traefik (Ingress Controller du J2), servicelb (Services LoadBalancer du TP5)
+  # et metrics-server (HPA du TP4) sont inclus dans k3s : rien à installer.
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

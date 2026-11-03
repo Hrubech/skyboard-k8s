@@ -1,0 +1,10 @@
+# TP5 — étape 5 : headless — pas de VIP, le DNS renvoie directement les IP des Pods (découverte côté client)
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-api-headless
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+spec:
+  clusterIP: None
+  selector: { app.kubernetes.io/name: skyboard-api }
+  ports: [{ name: http, port: 8000, targetPort: http }]

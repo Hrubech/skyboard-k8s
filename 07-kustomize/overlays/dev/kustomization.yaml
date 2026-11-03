@@ -1,0 +1,18 @@
+# Environnement de développement : 1 réplica, bannière visible, hôte dédié
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+labels:
+  - pairs: { environment: dev }
+    includeSelectors: true
+resources:
+  - ../../base
+  - namespace.yaml
+configMapGenerator:
+  - name: skyboard-api-config
+    behavior: merge
+    literals:
+      - FEATURE_BANNER=Environnement de DEV — données fictives
+      - AIRPORT=LFBO
+patches:
+  - path: ingress-host.yaml

@@ -1,0 +1,17 @@
+# TP3b — bonus : priorités et préemption
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: skyboard-critical
+value: 100000
+globalDefault: false
+description: "Services exposés aux utilisateurs : préemptent les charges de fond"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: background
+value: 1000
+preemptionPolicy: Never      # une charge de fond ne préempte jamais
+globalDefault: false
+description: "Traitements de fond, premiers à être évincés"

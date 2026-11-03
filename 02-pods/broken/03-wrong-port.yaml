@@ -1,0 +1,16 @@
+# Panne volontaire n°3 — le Pod est Running mais rien ne répond : kubectl port-forward, logs, exec
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-3
+  labels: { app.kubernetes.io/name: broken }
+spec:
+  containers:
+    - name: api
+      image: k3d-registry.localhost:5000/skyboard-api:v1
+      env: [{ name: PORT, value: "9000" }]
+      command: ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+      ports: [{ containerPort: 8000 }]
+      resources:
+        requests: { cpu: 50m, memory: 64Mi }
+        limits: { cpu: 250m, memory: 128Mi }

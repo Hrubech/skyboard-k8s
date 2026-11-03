@@ -1,0 +1,16 @@
+# TP5 — étape 4 : ExternalName — un alias DNS (CNAME) vers un service hors namespace ou hors cluster.
+# Cas d'usage : une équipe « legacy » consomme skyboard-api sous son ancien nom « flights-legacy ».
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: legacy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flights-legacy
+  namespace: legacy
+spec:
+  type: ExternalName
+  externalName: skyboard-api.default.svc.cluster.local   # en prod : api.partenaire.example.com
+  ports: [{ name: http, port: 8000 }]

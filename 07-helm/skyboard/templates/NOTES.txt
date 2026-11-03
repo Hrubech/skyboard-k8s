@@ -1,0 +1,16 @@
+SkyBoard {{ include "skyboard.apiTag" . }} est déployé (release « {{ .Release.Name }} », namespace {{ .Release.Namespace }}).
+
+Suivre le déploiement :
+  kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ include "skyboard.fullname" . }}-api
+
+{{- if .Values.ingress.enabled }}
+Accès (ajoutez « 127.0.0.1 {{ .Values.ingress.host }} » dans /etc/hosts si besoin) :
+  curl http://{{ .Values.ingress.host }}/api/version
+{{- else }}
+Accès sans Ingress :
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "skyboard.fullname" . }}-api 8000:8000
+  curl localhost:8000/version
+{{- end }}
+
+Mettre à jour vers la v2 :   helm upgrade {{ .Release.Name }} ./skyboard --set image.api.tag=v2
+Revenir en arrière :         helm rollback {{ .Release.Name }} 1

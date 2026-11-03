@@ -1,0 +1,14 @@
+# Panne volontaire n°1 — à diagnostiquer avec kubectl describe (section Events)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-1
+  labels: { app.kubernetes.io/name: broken }
+spec:
+  containers:
+    - name: api
+      image: k3d-registry.localhost:5000/skyboard-api:v1.0.0
+      ports: [{ containerPort: 8000 }]
+      resources:
+        requests: { cpu: 50m, memory: 64Mi }
+        limits: { cpu: 250m, memory: 128Mi }

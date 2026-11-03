@@ -1,0 +1,43 @@
+# TP6 — étape 5 : le CronJob du TP4 écrit maintenant vraiment en base.
+# Le script vient d'une ConfigMap créée depuis le fichier :
+#   kubectl create configmap notam-import-script --from-file=import.sh=../app/notam-import/import.sh
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: notam-import
+  labels: { app.kubernetes.io/name: notam-import, app.kubernetes.io/part-of: skyboard }
+spec:
+  schedule: "*/2 * * * *"
+  timeZone: "Europe/Paris"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels: { app.kubernetes.io/name: notam-import }
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: import
+              image: postgres:16-alpine            # contient psql
+              command: ["sh", "/scripts/import.sh"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef: { name: postgres-credentials, key: DATABASE_URL }
+              volumeMounts:
+                - { name: script, mountPath: /scripts, readOnly: true }
+              resources:
+                requests: { cpu: 10m, memory: 32Mi }
+                limits: { cpu: 100m, memory: 64Mi }
+              securityContext:
+                runAsUser: 70
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                capabilities: { drop: ["ALL"] }
+          volumes:
+            - name: script
+              configMap: { name: notam-import-script, defaultMode: 0555 }

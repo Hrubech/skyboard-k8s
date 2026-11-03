@@ -1,0 +1,25 @@
+# TP4 — étape 2 : autoscaling horizontal sur le CPU (metrics-server est inclus dans k3s)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: skyboard-api
+  labels:
+    app.kubernetes.io/name: skyboard-api
+    app.kubernetes.io/part-of: skyboard
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: skyboard-api
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50     # % de la request CPU (50m) -> se déclenche vite en TP
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60   # redescend 1 min après la fin de la charge (défaut 300)

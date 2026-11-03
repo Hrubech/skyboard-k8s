@@ -1,0 +1,28 @@
+# Production : 3 réplicas, image v2, ressources renforcées, hôte public
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: prod
+labels:
+  - pairs: { environment: prod }
+    includeSelectors: true
+resources:
+  - ../../base
+  - namespace.yaml
+images:
+  - name: k3d-registry.localhost:5000/skyboard-api
+    newTag: v2
+configMapGenerator:
+  - name: skyboard-api-config
+    behavior: merge
+    literals:
+      - AIRPORT=LFPG
+      - SHUTDOWN_DELAY=10
+patches:
+  - path: replicas-resources.yaml
+  - target:
+      kind: Ingress
+      name: skyboard
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: prod.skyboard.local

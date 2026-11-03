@@ -1,0 +1,10 @@
+# TP5 — étape 3 : LoadBalancer — demande une IP externe au fournisseur (ici klipper-lb de k3s)
+apiVersion: v1
+kind: Service
+metadata:
+  name: skyboard-api-lb
+  labels: { app.kubernetes.io/name: skyboard-api, app.kubernetes.io/part-of: skyboard }
+spec:
+  type: LoadBalancer
+  selector: { app.kubernetes.io/name: skyboard-api }
+  ports: [{ name: http, port: 8000, targetPort: http }]

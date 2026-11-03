@@ -1,0 +1,23 @@
+# TP3b — bonus : un Deployment « bruit » basse priorité qui réserve beaucoup de CPU.
+# Monter ses replicas jusqu'à saturer les agents, puis scaler l'API : observez les évictions (Preempted).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noise
+  labels: { app.kubernetes.io/name: noise }
+spec:
+  replicas: 4
+  selector:
+    matchLabels: { app.kubernetes.io/name: noise }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: noise }
+    spec:
+      priorityClassName: background
+      containers:
+        - name: sleep
+          image: busybox:1.36
+          command: ["sleep", "infinity"]
+          resources:
+            requests: { cpu: "900m", memory: 64Mi }   # volontairement gourmand en réservation
+            limits: { cpu: "1", memory: 128Mi }

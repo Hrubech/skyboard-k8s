@@ -1,0 +1,20 @@
+# Atelier J3 — étape 7 : un second Ingress, même host/path, marqué canary : nginx envoie canary-weight % du trafic
+#   10 % → 50 % → 100 % : kubectl annotate ingress skyboard-nginx-canary nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
+# Alternative par en-tête (test ciblé) : nginx.ingress.kubernetes.io/canary-by-header: "X-Canary"  (valeur « always »)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: skyboard-nginx-canary
+  labels: { app.kubernetes.io/part-of: skyboard }
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: skyboard.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: skyboard-api-canary, port: { name: http } } }

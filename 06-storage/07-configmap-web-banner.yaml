@@ -1,0 +1,8 @@
+# TP6 — bonus (1/2) : une ConfigMap destinée à être montée en volume
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: skyboard-web-banner
+  labels: { app.kubernetes.io/name: skyboard-web, app.kubernetes.io/part-of: skyboard }
+data:
+  banner.txt: "Bienvenue sur SkyBoard — version montée en volume"
