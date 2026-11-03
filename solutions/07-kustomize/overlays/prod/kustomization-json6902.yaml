@@ -1,0 +1,11 @@
+# SOLUTION TP7 — variante : la même chose en patch JSON6902, à ajouter dans `patches:` de kustomization.yaml
+# (sans toucher à replicas-resources.yaml).
+patches:
+  - target:
+      kind: Deployment
+      name: skyboard-web
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+# Vérification : kubectl kustomize 07-kustomize/overlays/prod | grep -A3 'name: prod-skyboard-web' | grep replicas

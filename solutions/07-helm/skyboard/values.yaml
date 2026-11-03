@@ -1,0 +1,46 @@
+# Valeurs par défaut du chart skyboard. Surchargez avec -f ou --set.
+image:
+  registry: k3d-registry.localhost:5000
+  api:
+    repository: skyboard-api
+    tag: ""            # vide = appVersion du Chart.yaml
+  web:
+    repository: skyboard-web
+    tag: v1
+  pullPolicy: IfNotPresent
+
+api:
+  replicas: 2
+  airport: LFBO
+  featureBanner: ""
+  shutdownDelay: "5"
+  terminationGracePeriodSeconds: 20   # SOLUTION TP7 : doit rester > shutdownDelay + preStop
+  redisHost: ""        # vide = compteur de visites désactivé
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 250m, memory: 128Mi }
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 50
+
+web:
+  enabled: true
+  replicas: 1
+  resources:
+    requests: { cpu: 10m, memory: 16Mi }
+    limits: { cpu: 100m, memory: 64Mi }
+
+ingress:
+  enabled: true
+  className: traefik
+  host: helm.skyboard.local
+  annotations: {}
+
+podSecurityContext: {}
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  capabilities: { drop: ["ALL"] }

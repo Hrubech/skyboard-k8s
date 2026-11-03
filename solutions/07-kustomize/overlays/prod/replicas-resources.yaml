@@ -1,0 +1,21 @@
+# SOLUTION TP7 — patch stratégique : un document par Deployment à modifier.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skyboard-api
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: api
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skyboard-web
+spec:
+  replicas: 2
