@@ -18,7 +18,7 @@ ports:
     nodeFilters: [loadbalancer]
 registries:
   create:
-    name: registry.localhost   # devient k3d-registry.localhost
+    name: k3d-registry.localhost   # nom utilisé tel quel par k3d : doit correspondre aux manifests (k3d-registry.localhost:5000)
     hostPort: "5000"
 options:
   # Traefik (Ingress Controller du J2), servicelb (Services LoadBalancer du TP5)

@@ -22,7 +22,7 @@ step6()  { k apply -f "$ROOT/06-storage/01-configmap-api.yaml" -f "$ROOT/06-stor
            k apply -f "$ROOT/06-storage/06-cronjob-notam-import-db.yaml"; }
 step7()  { k apply -k "$ROOT/07-kustomize/overlays/dev"; k apply -k "$ROOT/07-kustomize/overlays/prod"
            helm upgrade --install skyboard "$ROOT/07-helm/skyboard" --namespace helm --create-namespace --wait --timeout 120s; }
-stepat() { "$ROOT/08-atelier/01-install-ingress-nginx.sh"
+stepat() { bash "$ROOT/08-atelier/01-install-ingress-nginx.sh"
            k delete hpa skyboard-api --ignore-not-found; k delete deployment skyboard-api --ignore-not-found
            k apply -f "$ROOT/08-atelier/02-blue-deployment.yaml" -f "$ROOT/08-atelier/03-green-deployment.yaml" -f "$ROOT/08-atelier/04-service-blue-green.yaml" -f "$ROOT/08-atelier/05-ingress-nginx-stable.yaml" -f "$ROOT/08-atelier/06-service-canary.yaml" -f "$ROOT/08-atelier/07-ingress-nginx-canary.yaml"; }
 

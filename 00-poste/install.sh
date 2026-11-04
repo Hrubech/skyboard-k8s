@@ -56,9 +56,19 @@ command -v hey >/dev/null || sudo apt-get install -y hey >/dev/null 2>&1 \
   || { curl -fsSLo /tmp/hey "https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_${ARCH}" && sudo install -m 0755 /tmp/hey /usr/local/bin/hey; } \
   || echo "hey non installé : utiliser 'ab' (apache2-utils) pour la charge du TP4"
 
+# WSL régénère /etc/hosts à chaque démarrage : on l'en empêche, sinon les noms ci-dessous disparaissent
+if grep -qi microsoft /proc/version 2>/dev/null; then
+  if ! grep -q "generateHosts" /etc/wsl.conf 2>/dev/null; then
+    printf '\n[network]\ngenerateHosts=false\n' | sudo tee -a /etc/wsl.conf >/dev/null
+  fi
+  if ! grep -q "vmIdleTimeout" "$(wslpath "$(cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r')")/.wslconfig" 2>/dev/null; then
+    echo "Conseil : ajoutez vmIdleTimeout=-1 sous [wsl2] dans votre .wslconfig Windows pour que WSL ne s'arrête pas quand le terminal est fermé."
+  fi
+fi
+
 # Résolution du nom de la registry k3d depuis le poste
 grep -q "k3d-registry.localhost" /etc/hosts || echo "127.0.0.1 k3d-registry.localhost" | sudo tee -a /etc/hosts
-grep -q "skyboard.local" /etc/hosts || echo "127.0.0.1 skyboard.local" | sudo tee -a /etc/hosts
+grep -q " skyboard.local" /etc/hosts || echo "127.0.0.1 skyboard.local dev.skyboard.local prod.skyboard.local helm.skyboard.local" | sudo tee -a /etc/hosts
 
 # Complétion et alias
 grep -q 'alias k=kubectl' ~/.bashrc || cat >> ~/.bashrc <<'RC'
