@@ -2,6 +2,9 @@
 # Vérifie le poste avant la formation. Sortie : OK / KO par outil. Code retour 1 si un KO.
 set -u
 ko=0
+# Windows fait perdre le bit d'exécution aux scripts : on le remet (sans effet si déjà présent)
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+chmod +x "$ROOT"/00-poste/*.sh "$ROOT"/01-cluster/*.sh "$ROOT"/05-services/*.sh "$ROOT"/08-atelier/*.sh "$ROOT"/checkpoints/*.sh "$ROOT"/app/*/build.sh "$ROOT"/app/notam-import/*.sh 2>/dev/null || true
 check() { if "$@" >/dev/null 2>&1; then printf '  OK  %s\n' "$*"; else printf '  KO  %s\n' "$*"; ko=1; fi; }
 echo "== Outils"
 check docker version

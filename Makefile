@@ -6,22 +6,22 @@ help:           ## Affiche cette aide
 	@grep -E '^[a-zA-Z0-9_%-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-22s %s\n", $$1, $$2}'
 
 check:          ## Vérifie le poste (outils, ressources, réseau)
-	@00-poste/check.sh
+	@bash 00-poste/check.sh
 
 cluster:        ## Crée le cluster k3d (TP1)
-	@01-cluster/create.sh
+	@bash 01-cluster/create.sh
 
 images:         ## Construit et pousse skyboard-api v1/v2 et skyboard-web dans la registry k3d
-	@app/api/build.sh && app/web/build.sh
+	@bash app/api/build.sh && bash app/web/build.sh
 
 preload:        ## Pré-charge toutes les images des TP dans le cluster (J-1)
-	@00-poste/preload-images.sh
+	@bash 00-poste/preload-images.sh
 
 status:         ## Vue d'ensemble : nœuds, pods, services, ingress
 	@kubectl get nodes -o wide && echo && kubectl get deploy,sts,ds,job,cronjob,hpa,svc,ingress -A --field-selector metadata.namespace!=kube-system 2>/dev/null || kubectl get all
 
 $(addprefix checkpoint-,$(TPS)): ## checkpoint-<tp> : restaure l'état de fin du TP (1 2a 2b 3a 3b 4 5 6 7 atelier)
-	@checkpoints/restore.sh $(subst checkpoint-,,$@)
+	@bash checkpoints/restore.sh $(subst checkpoint-,,$@)
 
 clean-apps:     ## Supprime les objets SkyBoard (garde le cluster)
 	@kubectl delete -k 07-kustomize/overlays/dev --ignore-not-found 2>/dev/null || true
