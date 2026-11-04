@@ -51,7 +51,10 @@ sudo install -m 0755 /tmp/linux-${ARCH}/helm /usr/local/bin/helm
 # k9s (confort) et hey (charge pour le HPA)
 curl -fsSL "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_${ARCH}.tar.gz" | tar xz -C /tmp k9s
 sudo install -m 0755 /tmp/k9s /usr/local/bin/k9s
-curl -fsSLo /tmp/hey "https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_${ARCH}" && sudo install -m 0755 /tmp/hey /usr/local/bin/hey
+# hey : paquet Ubuntu (universe) d'abord, téléchargement en repli
+command -v hey >/dev/null || sudo apt-get install -y hey >/dev/null 2>&1 \
+  || { curl -fsSLo /tmp/hey "https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_${ARCH}" && sudo install -m 0755 /tmp/hey /usr/local/bin/hey; } \
+  || echo "hey non installé : utiliser 'ab' (apache2-utils) pour la charge du TP4"
 
 # Résolution du nom de la registry k3d depuis le poste
 grep -q "k3d-registry.localhost" /etc/hosts || echo "127.0.0.1 k3d-registry.localhost" | sudo tee -a /etc/hosts
