@@ -12,6 +12,10 @@ sudo apt-get update -y
 sudo apt-get install -y ca-certificates curl gnupg jq git make unzip apache2-utils tree
 
 # Docker Engine (dépôt officiel)
+DOCKER_DESKTOP=0
+if command -v docker >/dev/null && docker info 2>/dev/null | grep -qi "docker desktop"; then
+  DOCKER_DESKTOP=1; echo "Docker Desktop détecté (intégration WSL) : Docker CE n'est pas installé, daemon.json n'est pas modifié."
+fi
 if ! command -v docker >/dev/null; then
   sudo install -m 0755 -d /etc/apt/keyrings
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -24,10 +28,10 @@ if ! command -v docker >/dev/null; then
     | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
   sudo apt-get update -y && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 fi
-sudo usermod -aG docker "$USER" || true
+[ "$DOCKER_DESKTOP" = 1 ] || sudo usermod -aG docker "$USER" || true
 
 # La registry k3d sert en HTTP : Docker doit la connaître comme « insecure », sinon « server gave HTTP response to HTTPS client »
-if ! grep -q "k3d-registry.localhost:5000" /etc/docker/daemon.json 2>/dev/null; then
+if [ "$DOCKER_DESKTOP" = 0 ] && ! grep -q "k3d-registry.localhost:5000" /etc/docker/daemon.json 2>/dev/null; then
   if [ -s /etc/docker/daemon.json ]; then
     sudo jq '. + {"insecure-registries": ((."insecure-registries" // []) + ["k3d-registry.localhost:5000"] | unique)}' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json.new >/dev/null \
       && sudo mv /etc/docker/daemon.json.new /etc/docker/daemon.json

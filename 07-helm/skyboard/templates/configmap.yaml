@@ -12,4 +12,5 @@ data:
   SHUTDOWN_DELAY: {{ .Values.api.shutdownDelay | quote }}
   {{- if .Values.api.redisHost }}
   REDIS_HOST: {{ .Values.api.redisHost | quote }}
+  REDIS_PORT: "6379"
   {{- end }}

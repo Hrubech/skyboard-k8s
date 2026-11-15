@@ -42,6 +42,7 @@ spec:
           env:
             - { name: AIRPORT, value: "LFBO" }
             - { name: REDIS_HOST, value: "redis" }
+            - { name: REDIS_PORT, value: "6379" }   # explicite : sinon K8s injecte tcp://... pour le Service redis
             - { name: SHUTDOWN_DELAY, value: "5" }
           lifecycle:
             preStop:

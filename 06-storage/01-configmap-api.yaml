@@ -7,5 +7,6 @@ metadata:
 data:
   AIRPORT: "LFBO"
   REDIS_HOST: "redis"
+  REDIS_PORT: "6379"        # explicite : sinon K8s injecte tcp://... pour le Service redis
   SHUTDOWN_DELAY: "5"
   FEATURE_BANNER: ""

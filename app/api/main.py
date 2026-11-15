@@ -76,7 +76,10 @@ def _redis():
     if not REDIS_HOST:
         return None
     import redis  # import tardif : la lib n'est utile que si Redis est configuré
-    return redis.Redis(host=REDIS_HOST, port=int(os.getenv("REDIS_PORT", "6379")), socket_timeout=1)
+    # Attention : Kubernetes injecte REDIS_PORT="tcp://10.x.x.x:6379" pour un Service nommé "redis"
+    # (découverte par variables d'environnement, héritée des liens Docker) : on ne garde que le nombre final.
+    port = os.getenv("REDIS_PORT", "6379").rsplit(":", 1)[-1]
+    return redis.Redis(host=REDIS_HOST, port=int(port) if port.isdigit() else 6379, socket_timeout=1)
 
 
 def _flights_from_db():
