@@ -1,4 +1,6 @@
 # TP5 — étape 6 : Ingress (Traefik, inclus dans k3s). http://skyboard.local → web, /api → API
+# Second hôte skyboard.localhost : les navigateurs (Chrome, Edge, Firefox) résolvent *.localhost vers 127.0.0.1
+# sans toucher au fichier hosts de Windows → http://skyboard.localhost fonctionne depuis le navigateur du poste.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -8,6 +10,17 @@ spec:
   ingressClassName: traefik
   rules:
     - host: skyboard.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: skyboard-api, port: { name: http } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: skyboard-web, port: { name: http } }
+    - host: skyboard.localhost
       http:
         paths:
           - path: /api
