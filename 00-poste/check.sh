@@ -4,6 +4,7 @@ set -u
 ko=0
 # Windows fait perdre le bit d'exécution aux scripts : on le remet (sans effet si déjà présent)
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+git -C "$ROOT" config core.fileMode false 2>/dev/null || true   # sinon le chmod ci-dessous bloque le prochain git pull
 chmod +x "$ROOT"/00-poste/*.sh "$ROOT"/01-cluster/*.sh "$ROOT"/05-services/*.sh "$ROOT"/08-atelier/*.sh "$ROOT"/checkpoints/*.sh "$ROOT"/app/*/build.sh "$ROOT"/app/notam-import/*.sh 2>/dev/null || true
 check() { if "$@" >/dev/null 2>&1; then printf '  OK  %s\n' "$*"; else printf '  KO  %s\n' "$*"; ko=1; fi; }
 echo "== Outils"

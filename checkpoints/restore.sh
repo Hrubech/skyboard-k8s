@@ -14,7 +14,8 @@ step2b() { k apply -f "$ROOT/02-pods/04-service-api.yaml" -f "$ROOT/02-pods/05-d
 step3a() { k apply -f "$ROOT/03-lifecycle/01-deployment-probes.yaml"; }
 step3b() { k apply -f "$ROOT/03-lifecycle/02-redis.yaml" -f "$ROOT/03-lifecycle/03-deployment-init-prestop.yaml" -f "$ROOT/03-lifecycle/05-priorityclasses.yaml"
            k patch deployment skyboard-api --patch-file "$ROOT/03-lifecycle/04-deployment-antiaffinity.yaml"; }
-step4()  { k delete deployment redis --ignore-not-found; k apply -f "$ROOT/04-controllers/03-redis-statefulset.yaml" -f "$ROOT/04-controllers/01-deployment-rolling.yaml" -f "$ROOT/04-controllers/02-hpa.yaml" -f "$ROOT/04-controllers/04-daemonset-node-agent.yaml" -f "$ROOT/04-controllers/06-cronjob-notam-import.yaml"
+step4()  { k delete -f "$ROOT/03-lifecycle/02-redis.yaml" --ignore-not-found   # Deployment ET Service : clusterIP est immuable, le StatefulSet recrée le Service en headless
+           k apply -f "$ROOT/04-controllers/03-redis-statefulset.yaml" -f "$ROOT/04-controllers/01-deployment-rolling.yaml" -f "$ROOT/04-controllers/02-hpa.yaml" -f "$ROOT/04-controllers/04-daemonset-node-agent.yaml" -f "$ROOT/04-controllers/06-cronjob-notam-import.yaml"
            k patch deployment skyboard-api --patch-file "$ROOT/03-lifecycle/04-deployment-antiaffinity.yaml"; }
 step5()  { k apply -f "$ROOT/05-services/01-service-clusterip.yaml" -f "$ROOT/05-services/02-service-nodeport.yaml" -f "$ROOT/05-services/03-service-loadbalancer.yaml" -f "$ROOT/05-services/04-service-externalname.yaml" -f "$ROOT/05-services/05-service-headless.yaml" -f "$ROOT/05-services/06-ingress-traefik.yaml"; }
 step6()  { k apply -f "$ROOT/06-storage/01-configmap-api.yaml" -f "$ROOT/06-storage/02-secret-postgres.yaml" -f "$ROOT/06-storage/03-postgres-statefulset.yaml" -f "$ROOT/06-storage/05-deployment-api-config.yaml"
