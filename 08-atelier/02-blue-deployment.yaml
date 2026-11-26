@@ -34,7 +34,7 @@ spec:
           startupProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 2
-            failureThreshold: 15
+            failureThreshold: 30            # 60 s : un poste lent peut mettre ~50 s à démarrer la v2
           livenessProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 5
